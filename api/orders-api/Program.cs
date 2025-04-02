@@ -7,6 +7,14 @@ var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__De
     ?? builder.Configuration.GetConnectionString("DefaultConnection");
 Console.WriteLine($"🔍 String de conexão usada: {connectionString}");
 
+builder.Services.AddCors(options => {
+    options.AddPolicy("AllowAnyOrigin", policy =>
+    {
+        policy.AllowAnyOrigin()          // Permite qualquer origem
+              .AllowAnyMethod()           // Permite qualquer método HTTP (GET, POST, etc.)
+              .AllowAnyHeader();         // Permite qualquer cabeçalho
+    });
+});
 
 builder.Services.AddSingleton(new OrderService(connectionString));
 
@@ -16,7 +24,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-
+app.UseCors("AllowAnyOrigin");
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
