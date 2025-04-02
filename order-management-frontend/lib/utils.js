@@ -13,3 +13,15 @@ export function BRL(n){
 export function dateTimeBR(date){
     return (new Date(Date.parse(date))).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})
 }
+export function randStr(tamanho) {
+    const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'; // Conjunto de caracteres possíveis
+    let resultado = '';
+    const comprimento = caracteres.length;
+    
+    for (let i = 0; i < tamanho; i++) {
+        const indiceAleatorio = Math.floor(Math.random() * comprimento);
+        resultado += caracteres[indiceAleatorio];
+    }
+
+    return resultado;
+}
