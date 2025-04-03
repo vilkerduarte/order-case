@@ -36,20 +36,22 @@ export default function Home({settings}:CustomAppConfig) {
         },
         body:JSON.stringify(dados)
       });
-      setRefresh(randStr())
       let event = new CustomEvent('clearAddForm');
       window.dispatchEvent(event);
+      setTimeout(()=>{
+        setRefresh(randStr())
+        setAdicionando(false);
+      },800);
     } catch (error) {
       console.error(error)
+      setAdicionando(false);
     }
-    setAdicionando(false);
   }
 
   useEffect(()=>{
     var interval:any;
     if(settings){
       getOrders(settings.api_host,setList,(err:any)=>{console.error(err)}).then(()=>{
-        
         interval = setInterval(()=>{
           getOrders(settings.api_host,setList,(err:any)=>{console.error(err)});
         },20000);

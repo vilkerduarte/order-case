@@ -1,5 +1,7 @@
+using System;
 using Npgsql;
 using orders_api.Models;
+using System.Threading.Tasks;
 
 namespace orders_api.Services;
 public class OrderService
@@ -93,6 +95,30 @@ public class OrderService
         return null;
     }
 
+    private async Task TimeForUpdate(Guid orderId)
+    {
+        await Task.Delay(TimeSpan.FromMinutes(2));
+        await UpdateOrderStatusAsync(orderId, "Processando");
+
+        // Aguarda mais 5 minutos e então atualiza para "Finalizado"
+        await Task.Delay(TimeSpan.FromMinutes(5));
+        await UpdateOrderStatusAsync(orderId, "Finalizado");
+    }
+
+    private async Task UpdateOrderStatusAsync(Guid orderId, string status)
+    {
+        using var connection = new NpgsqlConnection(_connectionString);
+        await connection.OpenAsync();
+
+        var sql = "UPDATE orders SET status = @status WHERE id = @id";
+        using var cmd = new NpgsqlCommand(sql, connection);
+        cmd.Parameters.AddWithValue("status", status);
+        cmd.Parameters.AddWithValue("id", orderId);
+
+        await cmd.ExecuteNonQueryAsync();
+        Console.WriteLine($"✅ Status da ordem {orderId} alterado para {status}");
+    }
+
     public void AddOrder(Order order)
     {
         using var connection = new NpgsqlConnection(_connectionString);
@@ -111,5 +137,6 @@ public class OrderService
         cmd.Parameters.AddWithValue("data_criacao", order.DataCriacao);
 
         cmd.ExecuteNonQuery();
+        TimeForUpdate(order.Id);
     }
 }
