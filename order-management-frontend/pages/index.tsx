@@ -20,10 +20,13 @@ export default function Home({settings}:CustomAppConfig) {
 
   const [list,setList] = useState([]);
   const [refresh,setRefresh] = useState('random_string');
+  const [adicionando,setAdicionando] = useState(false);
+  const [clearForm,setClearForm] = useState('random_string');
 
   const addOrder = async(dados:any)=>{
     let {valor} = dados
     valor = parseFloat(valor);
+    setAdicionando(true);
     try {
       await fetch(`${settings.api_host}/orders`,{
         method:'POST',
@@ -34,15 +37,19 @@ export default function Home({settings}:CustomAppConfig) {
         body:JSON.stringify(dados)
       });
       setRefresh(randStr())
+      let event = new CustomEvent('clearAddForm');
+      window.dispatchEvent(event);
     } catch (error) {
       console.error(error)
     }
+    setAdicionando(false);
   }
 
   useEffect(()=>{
     var interval:any;
     if(settings){
       getOrders(settings.api_host,setList,(err:any)=>{console.error(err)}).then(()=>{
+        
         interval = setInterval(()=>{
           getOrders(settings.api_host,setList,(err:any)=>{console.error(err)});
         },20000);
@@ -58,7 +65,7 @@ export default function Home({settings}:CustomAppConfig) {
       <div className="flex md:flex-row flex-col md:gap-3 h-full">
         <div className="md:w-[320px] w-[95vw] mx-auto md:mx-0 h-full">
           <Title>Criar Ordem</Title>
-          <FormAdd onSend={addOrder}/>
+          <FormAdd onSend={addOrder} loading={adicionando}/>
         </div>
         <div className="flex-auto bg-neutral-100 rounded-xl shadow-xl p-4 md:h-full flex flex-col">
           <div className="border-b-2 border-slate-400">
